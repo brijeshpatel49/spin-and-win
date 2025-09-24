@@ -76,95 +76,6 @@ const prizes = [
   },
 ];
 
-// --- INSTANT CELEBRATION CONFETTI ---
-const CelebrationConfetti = () => {
-  const celebrationItems = ['⭐', '🎉', '🎊', '💫', '✨', '🌟', '💝', '🎁', '🏆', '👑', '💎', '🔥'];
-  const colors = ["#FFD700", "#FF69B4", "#00CED1", "#FFA500", "#FF6347", "#32CD32", "#9370DB", "#FF1493"];
-  
-  // FIXED: PRE-GENERATE CONFETTI DATA WITH PROPER DEPENDENCIES
-  const confettiData = useMemo(() => {
-    const data = [];
-    
-    // INSTANT BURST - 300 particles with no delay
-    for (let i = 0; i < 300; i++) {
-      data.push({
-        id: `celebration-${i}`,
-        delay: Math.random() * 0.3, // Very fast start (0-0.3s)
-        duration: 2 + Math.random() * 3, // 2-5 seconds
-        size: 20 + Math.random() * 20, // Larger celebration items
-        item: celebrationItems[Math.floor(Math.random() * celebrationItems.length)],
-        color: colors[i % colors.length],
-        startX: Math.random() * 110 - 5, // Full width coverage
-        windEffect: (Math.random() - 0.5) * 300, // Strong wind effect
-        rotationSpeed: 180 + Math.random() * 360, // Faster rotation
-      });
-    }
-    
-    // SECONDARY WAVE - More particles for continuous celebration
-    for (let i = 0; i < 200; i++) {
-      data.push({
-        id: `celebration-wave2-${i}`,
-        delay: 0.2 + Math.random() * 0.5, // Slightly delayed
-        duration: 3 + Math.random() * 4,
-        size: 16 + Math.random() * 16,
-        item: celebrationItems[Math.floor(Math.random() * celebrationItems.length)],
-        color: colors[i % colors.length],
-        startX: Math.random() * 110 - 5,
-        windEffect: (Math.random() - 0.5) * 250,
-        rotationSpeed: 120 + Math.random() * 240,
-      });
-    }
-    
-    return data;
-  }, [celebrationItems, colors]); // FIXED: Added missing dependencies
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {confettiData.map((particle) => (
-        <span
-          key={particle.id}
-          className="absolute font-bold"
-          style={{
-            left: `${particle.startX}%`,
-            fontSize: `${particle.size}px`,
-            color: particle.color,
-            animation: `celebrationFall ${particle.duration}s ${particle.delay}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`,
-            textShadow: '0 4px 8px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.3)',
-            filter: 'drop-shadow(0 0 10px currentColor)',
-          }}
-        >
-          {particle.item}
-        </span>
-      ))}
-      
-      <style jsx>{`
-        @keyframes celebrationFall {
-          0% {
-            transform: translateY(-10vh) rotate(0deg) translateX(0px) scale(0.5);
-            opacity: 1;
-          }
-          15% {
-            opacity: 1;
-            transform: translateY(15vh) rotate(${Math.random() * 180}deg) translateX(${Math.random() * 100 - 50}px) scale(1.2);
-          }
-          50% {
-            opacity: 0.9;
-            transform: translateY(50vh) rotate(${Math.random() * 360}deg) translateX(${Math.random() * 200 - 100}px) scale(1);
-          }
-          85% {
-            opacity: 0.7;
-            transform: translateY(85vh) rotate(${Math.random() * 540}deg) translateX(${Math.random() * 300 - 150}px) scale(0.8);
-          }
-          100% {
-            transform: translateY(110vh) rotate(${Math.random() * 720}deg) translateX(${Math.random() * 400 - 200}px) scale(0.3);
-            opacity: 0;
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
-
 // CLIENT-ONLY BACKGROUND PARTICLES COMPONENT
 const BackgroundParticles = () => {
   const [particles, setParticles] = useState([]);
@@ -262,7 +173,7 @@ const SpinWheel = ({ onWin }) => {
         setRotation(startRotation + rotationToDo * easedProgress);
         requestAnimationFrame(animate);
       } else {
-        // FIXED: Immediate modal trigger - no delay
+        // Immediate modal trigger - no delay
         setRotation(finalRotationValue);
         setIsSpinning(false);
         
@@ -310,11 +221,6 @@ const SpinWheel = ({ onWin }) => {
           </div>
         )}
       </div>
-
-      {/* INSTANT CELEBRATION CONFETTI */}
-      {showWinModal && winner && winner.name !== "Better Luck Next Time" && (
-        <CelebrationConfetti />
-      )}
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6">
@@ -552,7 +458,6 @@ const SpinWheel = ({ onWin }) => {
                       {winner.displayName}
                     </h2>
                     <p className="text-lg sm:text-xl text-white/80 mb-8 sm:mb-10 leading-relaxed">
-                      {/* FIXED: Escaped apostrophe */}
                       Don&apos;t give up! Every spin brings new opportunities! 🌟
                     </p>
                   </>
