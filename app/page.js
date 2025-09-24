@@ -5,7 +5,7 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 // The main App component that renders the SpinWheel
 export default function App() {
   const handleWin = (prize) => {
-    // You can add further logic here, like updating user's prizes
+    // You can add further logic here, like updating user prizes
   };
 
   return (
@@ -76,53 +76,87 @@ const prizes = [
   },
 ];
 
-
-// --- NEW FAST CELEBRATION BURST EFFECT ---
-const CelebrationBurst = () => {
-  const celebrationEmojis = ['🎉', '🎊', '✨', '⭐', '🎈', '🎁', '💖', '🏆'];
+// --- INSTANT CELEBRATION CONFETTI ---
+const CelebrationConfetti = () => {
+  const celebrationItems = ['⭐', '🎉', '🎊', '💫', '✨', '🌟', '💝', '🎁', '🏆', '👑', '💎', '🔥'];
+  const colors = ["#FFD700", "#FF69B4", "#00CED1", "#FFA500", "#FF6347", "#32CD32", "#9370DB", "#FF1493"];
   
-  const particles = useMemo(() => {
+  // FIXED: PRE-GENERATE CONFETTI DATA WITH PROPER DEPENDENCIES
+  const confettiData = useMemo(() => {
     const data = [];
-    const particleCount = 150; // A good number for a burst effect
-    for (let i = 0; i < particleCount; i++) {
+    
+    // INSTANT BURST - 300 particles with no delay
+    for (let i = 0; i < 300; i++) {
       data.push({
-        id: `burst-${i}`,
-        emoji: celebrationEmojis[i % celebrationEmojis.length],
-        delay: Math.random() * 0.5, // Stagger the start slightly for a natural look
-        duration: 1.2 + Math.random() * 1.5, // Fast falling duration
-        size: 20 + Math.random() * 25, // Varying sizes for more depth
-        startX: Math.random() * 100, // Spawn across the entire top width
-        endX: (Math.random() - 0.5) * 60, // Horizontal drift effect
+        id: `celebration-${i}`,
+        delay: Math.random() * 0.3, // Very fast start (0-0.3s)
+        duration: 2 + Math.random() * 3, // 2-5 seconds
+        size: 20 + Math.random() * 20, // Larger celebration items
+        item: celebrationItems[Math.floor(Math.random() * celebrationItems.length)],
+        color: colors[i % colors.length],
+        startX: Math.random() * 110 - 5, // Full width coverage
+        windEffect: (Math.random() - 0.5) * 300, // Strong wind effect
+        rotationSpeed: 180 + Math.random() * 360, // Faster rotation
       });
     }
+    
+    // SECONDARY WAVE - More particles for continuous celebration
+    for (let i = 0; i < 200; i++) {
+      data.push({
+        id: `celebration-wave2-${i}`,
+        delay: 0.2 + Math.random() * 0.5, // Slightly delayed
+        duration: 3 + Math.random() * 4,
+        size: 16 + Math.random() * 16,
+        item: celebrationItems[Math.floor(Math.random() * celebrationItems.length)],
+        color: colors[i % colors.length],
+        startX: Math.random() * 110 - 5,
+        windEffect: (Math.random() - 0.5) * 250,
+        rotationSpeed: 120 + Math.random() * 240,
+      });
+    }
+    
     return data;
-  }, []);
-  
+  }, [celebrationItems, colors]); // FIXED: Added missing dependencies
+
   return (
-    <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-50 overflow-hidden">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="absolute"
+    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+      {confettiData.map((particle) => (
+        <span
+          key={particle.id}
+          className="absolute font-bold"
           style={{
-            left: `${p.startX}vw`,
-            fontSize: `${p.size}px`,
-            animation: `fall ${p.duration}s ${p.delay}s cubic-bezier(0.5, 0, 1, 1) forwards`,
-            '--end-x': `${p.endX}vw`,
-            textShadow: '0px 4px 10px rgba(0,0,0,0.5)',
+            left: `${particle.startX}%`,
+            fontSize: `${particle.size}px`,
+            color: particle.color,
+            animation: `celebrationFall ${particle.duration}s ${particle.delay}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`,
+            textShadow: '0 4px 8px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.3)',
+            filter: 'drop-shadow(0 0 10px currentColor)',
           }}
         >
-          {p.emoji}
-        </div>
+          {particle.item}
+        </span>
       ))}
+      
       <style jsx>{`
-        @keyframes fall {
+        @keyframes celebrationFall {
           0% {
-            transform: translateY(-20vh) translateX(0) rotate(0deg);
+            transform: translateY(-10vh) rotate(0deg) translateX(0px) scale(0.5);
             opacity: 1;
           }
+          15% {
+            opacity: 1;
+            transform: translateY(15vh) rotate(${Math.random() * 180}deg) translateX(${Math.random() * 100 - 50}px) scale(1.2);
+          }
+          50% {
+            opacity: 0.9;
+            transform: translateY(50vh) rotate(${Math.random() * 360}deg) translateX(${Math.random() * 200 - 100}px) scale(1);
+          }
+          85% {
+            opacity: 0.7;
+            transform: translateY(85vh) rotate(${Math.random() * 540}deg) translateX(${Math.random() * 300 - 150}px) scale(0.8);
+          }
           100% {
-            transform: translateY(120vh) translateX(var(--end-x)) rotate(720deg);
+            transform: translateY(110vh) rotate(${Math.random() * 720}deg) translateX(${Math.random() * 400 - 200}px) scale(0.3);
             opacity: 0;
           }
         }
@@ -178,7 +212,6 @@ const SpinWheel = ({ onWin }) => {
   const [showWinModal, setShowWinModal] = useState(false);
   const [winner, setWinner] = useState(null);
   const [isClient, setIsClient] = useState(false);
-  const [winningIndex, setWinningIndex] = useState(null);
 
   const segmentAngle = useMemo(() => 360 / prizes.length, []);
 
@@ -198,21 +231,6 @@ const SpinWheel = ({ onWin }) => {
     return prizes.length - 1;
   }, []);
 
-  // Effect to handle showing the modal once spinning stops
-  useEffect(() => {
-    // This check ensures the modal only shows after a spin has completed
-    if (!isSpinning && winningIndex !== null) {
-      const winnerData = {
-        ...prizes[winningIndex],
-        displayName: prizes[winningIndex].name,
-      };
-      setWinner(winnerData);
-      setShowWinModal(true);
-      if (onWin) onWin(winnerData);
-      setWinningIndex(null); // Reset for the next spin
-    }
-  }, [isSpinning, winningIndex, onWin]);
-
   const spinWheel = useCallback(() => {
     if (isSpinning) return;
 
@@ -221,8 +239,6 @@ const SpinWheel = ({ onWin }) => {
     const randomOffset =
       Math.random() * (segmentAngle * 0.8) + segmentAngle * 0.1;
     const finalTargetAngleOnWheel = segmentStartAngle + randomOffset;
-
-    setWinningIndex(targetIndex); // Store the winning index before animating
 
     const spins = 10;
     const targetRotation = 360 - finalTargetAngleOnWheel;
@@ -246,14 +262,25 @@ const SpinWheel = ({ onWin }) => {
         setRotation(startRotation + rotationToDo * easedProgress);
         requestAnimationFrame(animate);
       } else {
+        // FIXED: Immediate modal trigger - no delay
         setRotation(finalRotationValue);
         setIsSpinning(false);
+        
+        const winnerData = {
+          ...prizes[targetIndex],
+          displayName: prizes[targetIndex].name,
+        };
+        
+        // INSTANT TRIGGER - No setTimeout delay
+        setWinner(winnerData);
+        setShowWinModal(true);
+        if (onWin) onWin(winnerData);
       }
     };
 
     setIsSpinning(true);
     requestAnimationFrame(animate);
-  }, [isSpinning, rotation, getWeightedRandomPrize, segmentAngle]);
+  }, [isSpinning, rotation, onWin, getWeightedRandomPrize, segmentAngle]);
 
   const closeModal = () => {
     setShowWinModal(false);
@@ -276,7 +303,7 @@ const SpinWheel = ({ onWin }) => {
         <div className="absolute bottom-1/4 right-1/4 w-40 sm:w-80 h-40 sm:h-80 bg-gradient-radial from-pink-400/25 to-transparent rounded-full animate-pulse blur-3xl" style={{animationDelay: '1s'}}></div>
         <div className="absolute top-3/4 left-1/3 w-28 sm:w-56 h-28 sm:h-56 bg-gradient-radial from-cyan-400/20 to-transparent rounded-full animate-pulse blur-2xl" style={{animationDelay: '3s'}}></div>
         
-        {/* CLIENT-ONLY PARTICLES - COMPLETELY PREVENTS HYDRATION ISSUES */}
+        {/* CLIENT-ONLY PARTICLES */}
         {isClient && (
           <div suppressHydrationWarning>
             <BackgroundParticles />
@@ -284,9 +311,9 @@ const SpinWheel = ({ onWin }) => {
         )}
       </div>
 
-      {/* FAST CELEBRATION BURST - TRIGGERS WHEN MODAL SHOWS */}
+      {/* INSTANT CELEBRATION CONFETTI */}
       {showWinModal && winner && winner.name !== "Better Luck Next Time" && (
-        <CelebrationBurst />
+        <CelebrationConfetti />
       )}
 
       {/* Main content */}
@@ -525,7 +552,8 @@ const SpinWheel = ({ onWin }) => {
                       {winner.displayName}
                     </h2>
                     <p className="text-lg sm:text-xl text-white/80 mb-8 sm:mb-10 leading-relaxed">
-                      Don't give up! Every spin brings new opportunities! 🌟
+                      {/* FIXED: Escaped apostrophe */}
+                      Don&apos;t give up! Every spin brings new opportunities! 🌟
                     </p>
                   </>
                 ) : (
@@ -597,6 +625,3 @@ const SpinWheel = ({ onWin }) => {
     </div>
   );
 };
-
-
-
