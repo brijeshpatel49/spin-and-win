@@ -44,7 +44,7 @@ const prizes = [
     color: "#FF8E2B",
     emoji: "🎮",
     textColor: "white",
-    weight: 5, // Low chance
+    weight: 8, // Low chance
   },
   {
     name: "Choki Choki Chocolate",
@@ -58,12 +58,12 @@ const prizes = [
     color: "#5DADE2",
     emoji: "💰",
     textColor: "white",
-    weight: 15, // Medium chance
+    weight: 30, // Medium chance
   },
   {
-    name: "Pulse Candy",
+    name: "30% OFF Next Game",
     color: "#4ECDC4",
-    emoji: "🍬",
+    emoji: "💰",
     textColor: "white",
     weight: 25, // High chance
   },
@@ -72,7 +72,7 @@ const prizes = [
     color: "#95A5A6",
     emoji: "🍀",
     textColor: "white",
-    weight: 44, // Highest chance
+    weight: 40, // Highest chance
   },
 ];
 
